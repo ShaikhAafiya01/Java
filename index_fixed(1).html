@@ -1,0 +1,936 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HostelCare | Residence Management</title>
+<style>
+:root {
+  --forest:#123d30;
+  --deep:#0b2b22;
+  --green:#247858;
+  --mint:#b9e5cf;
+  --pale:#e9f4ed;
+  --bg:#f3f6f3;
+  --white:#fff;
+  --ink:#20362c;
+  --muted:#829087;
+  --line:#e4ebe5;
+  --red:#c65353;
+  --gold:#bb8730;
+  --shadow:0 8px 28px rgba(25,65,46,.055);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #68ad8c;outline-offset:2px}
+.app{min-height:100vh;display:flex}
+.sidebar{width:252px;position:fixed;inset:0 auto 0 0;background:var(--deep);color:white;padding:25px 16px;display:flex;flex-direction:column;z-index:10;overflow:auto}
+.logo{display:flex;align-items:center;gap:11px;padding:0 10px 26px}
+.logo-mark{width:43px;height:43px;border-radius:14px;background:#c5ebd4;color:var(--forest);display:grid;place-items:center;font-size:23px;font-weight:900}
+.logo-name{font-size:20px;font-weight:800;letter-spacing:-.6px}
+.logo-name span{color:#9ed6b8}
+.logo-sub{font-size:10px;color:#94b7a5;letter-spacing:1.5px;margin-top:4px}
+.nav-label{font-size:10px;color:#7ea492;letter-spacing:1.5px;padding:13px 13px 9px}
+.nav-btn{border:0;background:transparent;color:#b9d0c3;width:100%;padding:12px 13px;border-radius:10px;text-align:left;display:flex;align-items:center;gap:12px;margin:3px 0;font-size:13px;transition:.2s}
+.nav-btn:hover{background:#183f32;color:white;transform:translateX(2px)}
+.nav-btn.active{background:#28664b;color:#fff;box-shadow:inset 3px 0 #a6e2bf}
+.nav-icon{width:21px;text-align:center;font-size:17px}
+.nav-count{margin-left:auto;font-size:10px;background:#315f49;padding:4px 7px;border-radius:12px}
+.sidebar-bottom{margin-top:auto;border-top:1px solid #284638;padding:18px 8px 0}
+.profile{display:flex;align-items:center;gap:10px}
+.avatar{width:38px;height:38px;border-radius:12px;background:#d7eee0;color:#174a36;display:grid;place-items:center;font-weight:800}
+.profile-name{font-size:12px;font-weight:700}
+.profile-role{font-size:10px;color:#a5c1b1;margin-top:4px}
+.main{margin-left:252px;width:calc(100% - 252px);min-width:0}
+.topbar{height:78px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;gap:15px;position:sticky;top:0;z-index:5}
+.breadcrumb{font-size:11px;color:var(--muted);margin-bottom:5px}
+.top-title{font-size:19px;font-weight:800;letter-spacing:-.5px}
+.top-actions{display:flex;align-items:center;gap:12px}
+.date-chip{padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:11px;color:#64776a;background:#fff}
+.icon-btn{border:1px solid var(--line);background:#fff;border-radius:10px;width:39px;height:39px;color:var(--forest);position:relative}
+.dot{width:7px;height:7px;background:#d46d58;border:1px solid white;border-radius:50%;position:absolute;right:8px;top:8px}
+.mobile-menu{display:none}
+.content{padding:28px 30px;max-width:1600px;margin:auto}
+.page{display:none;animation:fade .3s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{0%{transform:scale(.96);opacity:.6}100%{transform:scale(1);opacity:1}}
+.heading{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:23px}
+h1{font-size:25px;letter-spacing:-.8px;margin:0 0 7px}
+h2{font-size:17px;letter-spacing:-.4px;margin:0}
+h3{font-size:14px;margin:0}
+.sub{font-size:12px;color:var(--muted);line-height:1.7;margin:0}
+.btn{border:0;border-radius:9px;padding:11px 15px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
+.btn:hover{transform:translateY(-1px);filter:brightness(.97)}
+.primary{background:var(--forest);color:white}
+.primary:hover{background:#1d6247}
+.light{background:var(--pale);color:var(--forest)}
+.outline{background:white;color:var(--forest);border:1px solid var(--line)}
+.danger{background:#fff0ef;color:#b24747}
+.gold{background:#fff4dd;color:#8b641e}
+.small{padding:7px 10px;font-size:10px;border-radius:7px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:22px}
+.stat{padding:19px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);transition:.25s}
+.stat:hover{transform:translateY(-3px);box-shadow:0 12px 30px #153e2910}
+.stat-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.stat-label{font-size:11px;color:#75867a;font-weight:600}
+.stat-icon{width:37px;height:37px;border-radius:11px;background:var(--pale);display:grid;place-items:center;font-size:18px}
+.stat-value{font-size:29px;font-weight:800;letter-spacing:-1px;margin:14px 0 8px}
+.stat-foot{font-size:10px;color:#6c9b7d}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:21px;margin-bottom:20px;box-shadow:var(--shadow);min-width:0}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.panel-head .sub{margin-top:5px}
+.two-col{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.85fr);gap:20px}
+.three-col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+.welcome{border-radius:17px;background:linear-gradient(115deg,#123d30,#277856);padding:29px;color:white;display:flex;justify-content:space-between;align-items:center;gap:20px;overflow:hidden;position:relative;margin-bottom:23px}
+.welcome:after{content:"";position:absolute;width:260px;height:260px;border:1px solid #ffffff18;border-radius:50%;right:7%;top:-140px;box-shadow:0 0 0 35px #ffffff08,0 0 0 70px #ffffff06}
+.welcome-copy{position:relative;z-index:1;max-width:590px}
+.welcome h1{font-size:27px;line-height:1.3;margin-bottom:10px}
+.welcome p{font-size:12px;color:#d1e9db;line-height:1.8;margin:0 0 19px}
+.welcome .btn{background:#fff;color:var(--forest)}
+.welcome-art{font-size:75px;opacity:.8;position:relative;z-index:1;margin-right:20px}
+.table-wrap{overflow:auto;width:100%}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th{background:#f7faf7;color:#7c8c80;text-transform:uppercase;font-size:10px;letter-spacing:.7px;text-align:left}
+th,td{padding:13px 12px;border-bottom:1px solid #edf1ed;white-space:normal}
+td{font-size:11px;color:#46594c}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#fbfdfb}
+.person{display:flex;align-items:center;gap:10px;min-width:135px}
+.person-avatar{width:35px;height:35px;flex-shrink:0;display:grid;place-items:center;border-radius:10px;background:#e7f2e9;color:#31684b;font-weight:800;font-size:11px}
+.person-name{font-size:11px;font-weight:700;color:#283d30}
+.person-sub{font-size:10px;color:#91a095;margin-top:4px}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:30px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge.green{background:#e4f5e9;color:#28734c}
+.badge.orange{background:#fff1d9;color:#96681c}
+.badge.red{background:#ffebea;color:#ae4646}
+.badge.gray{background:#eef1ee;color:#6f7b72}
+.bar{height:7px;background:#edf1ed;border-radius:10px;overflow:hidden}
+.bar-fill{height:100%;background:#399269;border-radius:10px;transition:width .5s}
+.room-mini{margin-bottom:19px}
+.room-mini:last-child{margin-bottom:0}
+.room-mini-top{display:flex;justify-content:space-between;gap:10px;font-size:11px;margin-bottom:9px}
+.room-mini-top span:last-child{color:#839087}
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.quick{padding:17px 10px;border:1px solid var(--line);background:#fff;border-radius:12px;text-align:center;color:var(--ink);transition:.2s}
+.quick:hover{border-color:#8ebda1;transform:translateY(-3px)}
+.quick-icon{font-size:23px;margin-bottom:10px}
+.quick-title{font-size:11px;font-weight:700}
+.quick-sub{font-size:10px;color:var(--muted);margin-top:5px}
+.search{max-width:245px;width:100%;border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:11px;background:#fff}
+.filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.field{display:flex;flex-direction:column;gap:7px;min-width:0}
+.field.full{grid-column:1/-1}
+label{font-size:11px;font-weight:700;color:#405648}
+input,select,textarea{border:1px solid #dfe8e0;border-radius:9px;padding:11px 12px;background:#fff;color:#294033;width:100%;font-size:12px}
+textarea{resize:vertical;min-height:90px}
+.form-actions{display:flex;gap:9px;margin-top:17px;flex-wrap:wrap}
+.form-note{font-size:10px;color:var(--muted);margin-top:10px;line-height:1.6}
+.room-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+.room-card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:.25s;box-shadow:var(--shadow)}
+.room-card:hover{transform:translateY(-4px);box-shadow:0 14px 30px #123d3010}
+.room-photo{height:150px;position:relative;overflow:hidden;background:#e2ece4}
+.room-photo img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.room-card:hover .room-photo img{transform:scale(1.05)}
+.room-label{position:absolute;top:12px;left:12px}
+.room-body{padding:17px}
+.room-title-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.room-number{font-size:19px;font-weight:800;letter-spacing:-.5px}
+.room-type{font-size:11px;color:var(--muted);margin:7px 0 17px}
+.room-info{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:#738278;margin-bottom:9px}
+.room-footer{border-top:1px solid var(--line);margin-top:15px;padding-top:13px;display:flex;justify-content:space-between;align-items:center;gap:7px}
+.notice{padding:15px;border:1px solid var(--line);border-radius:11px;display:flex;gap:12px;margin-bottom:11px}
+.notice-icon{width:36px;height:36px;display:grid;place-items:center;background:var(--pale);border-radius:10px;flex-shrink:0;font-size:16px}
+.notice-title{font-weight:700;font-size:12px;margin-bottom:5px}
+.notice-text{font-size:11px;line-height:1.7;color:var(--muted)}
+.notice-date{font-size:10px;color:#93a096;margin-top:7px}
+.ticket{border:1px solid var(--line);border-radius:11px;padding:16px;margin-bottom:11px}
+.ticket-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ticket-title{font-size:12px;font-weight:800}
+.ticket-description{font-size:11px;color:var(--muted);line-height:1.7;margin:9px 0}
+.ticket-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.metric-line{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line);font-size:12px}
+.metric-line:last-child{border-bottom:0}
+.metric-line span{color:var(--muted)}
+.empty{padding:25px;text-align:center;color:var(--muted);font-size:12px}
+.footer{text-align:center;padding:12px 20px 22px;color:#99a59c;font-size:10px}
+.overlay{position:fixed;inset:0;background:#071d16b8;backdrop-filter:blur(7px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:white;width:100%;max-width:400px;border-radius:20px;padding:32px;box-shadow:0 30px 100px #0003;animation:pop .25s ease}
+.login-logo{width:55px;height:55px;background:var(--forest);color:#c5ebd4;border-radius:16px;display:grid;place-items:center;font-size:28px;margin-bottom:20px}
+.login-box h2{font-size:24px;margin-bottom:8px}
+.login-box>p{font-size:12px;color:var(--muted);line-height:1.7;margin:0 0 23px}
+.login-box .field{margin-bottom:14px}
+.login-error{font-size:11px;color:var(--red);margin:10px 0;min-height:15px}
+.login-hint{background:#f2f7f3;border-radius:9px;padding:12px;font-size:11px;color:#637769;line-height:1.8;margin-top:15px}
+.toast{position:fixed;right:25px;bottom:25px;z-index:150;background:#173e30;color:white;padding:14px 19px;border-radius:11px;box-shadow:0 10px 35px #0002;font-size:12px;animation:fade .2s ease;max-width:calc(100% - 40px)}
+.toast.error{background:#9e3939}
+.hide{display:none!important}
+@media(max-width:1200px){.stats{grid-template-columns:repeat(2,1fr)}.room-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.three-col{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:850px){.sidebar{width:220px}.main{margin-left:220px;width:calc(100% - 220px)}.content{padding:20px}.topbar{padding:0 20px}.two-col{grid-template-columns:1fr}.date-chip{display:none}}
+@media(max-width:650px){
+ .sidebar{width:100%;position:relative;inset:auto;padding:12px;display:block}
+ .logo{padding:0 6px 10px}.logo-mark{width:36px;height:36px}.logo-name{font-size:17px}.logo-sub{font-size:9px}
+ .nav-label,.sidebar-bottom{display:none}
+ .sidebar nav{display:flex;overflow-x:auto;gap:5px;padding-bottom:3px}
+ .nav-btn{width:auto;flex-shrink:0;padding:10px;font-size:11px;margin:0;gap:6px}
+ .nav-icon{font-size:14px;width:auto}
+ .main{margin-left:0;width:100%}.topbar{height:65px;padding:0 15px;position:relative}
+ .top-title{font-size:16px}.content{padding:16px}.welcome{padding:22px}.welcome h1{font-size:23px}.welcome-art{display:none}
+ .stats{gap:10px}.stat{padding:14px}.stat-value{font-size:25px;margin:12px 0 7px}.stat-icon{width:32px;height:32px}
+ .room-grid,.three-col{grid-template-columns:1fr}.quick-grid{grid-template-columns:repeat(2,1fr)}
+ .panel{padding:15px}.field-grid{grid-template-columns:1fr}.field.full{grid-column:auto}
+ h1{font-size:22px}.heading{margin-bottom:17px}
+}
+@media print{
+ .sidebar,.topbar,.no-print,.footer,.overlay,.toast{display:none!important}
+ .main{margin:0;width:100%}.content{padding:0;max-width:none}
+ .page{display:none!important}.page.active{display:block!important;animation:none}
+ body{background:white;font-size:10px}
+ .panel,.stat,.room-card{box-shadow:none;break-inside:avoid;border:1px solid #ddd}
+ .room-grid{grid-template-columns:repeat(3,1fr)}
+ th,td{padding:8px}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">⌂</div>
+      <div>
+        <div class="logo-name">Hostel<span>Care</span></div>
+        <div class="logo-sub">RESIDENCE MANAGEMENT</div>
+      </div>
+    </div>
+
+    <nav>
+      <div class="nav-label">OVERVIEW</div>
+      <button class="nav-btn active" data-page="dashboard"><span class="nav-icon">▦</span> Dashboard</button>
+      <div class="nav-label">RESIDENTS & FACILITIES</div>
+      <button class="nav-btn" data-page="students"><span class="nav-icon">♙</span> Students <span class="nav-count" id="student-count">6</span></button>
+      <button class="nav-btn" data-page="rooms"><span class="nav-icon">▤</span> Rooms</button>
+      <button class="nav-btn" data-page="assignments"><span class="nav-icon">⇄</span> Room Assignment</button>
+      <div class="nav-label">ADMINISTRATION</div>
+      <button class="nav-btn" data-page="fees"><span class="nav-icon">₹</span> Fees & Payments</button>
+      <button class="nav-btn" data-page="complaints"><span class="nav-icon">♧</span> Complaints <span class="nav-count" id="complaint-count">2</span></button>
+      <button class="nav-btn" data-page="notices"><span class="nav-icon">▧</span> Notices</button>
+      <button class="nav-btn" data-page="reports"><span class="nav-icon">▥</span> Reports</button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="profile">
+        <div class="avatar">AD</div>
+        <div><div class="profile-name">Hostel Administrator</div><div class="profile-role">Management account</div></div>
+      </div>
+      <button class="nav-btn" style="margin-top:15px" onclick="logout()"><span class="nav-icon">↪</span> Sign out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div class="breadcrumb">HostelCare / <span id="crumb">Dashboard</span></div>
+        <div class="top-title" id="top-title">Dashboard</div>
+      </div>
+      <div class="top-actions">
+        <div class="date-chip" id="today-date"></div>
+        <button class="icon-btn" title="View notices" onclick="showPage('notices')">♧<span class="dot"></span></button>
+        <div class="avatar">AD</div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- 1. DASHBOARD -->
+      <section class="page active" id="dashboard">
+        <div class="welcome">
+          <div class="welcome-copy">
+            <h1>A better place to call home.</h1>
+            <p>Welcome back! Manage residents, monitor room availability and keep everyday hostel operations organised from one simple workspace.</p>
+            <button class="btn" onclick="showPage('students')">Explore student records →</button>
+          </div>
+          <div class="welcome-art">⌂</div>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><div class="stat-top"><span class="stat-label">Registered Students</span><span class="stat-icon">♙</span></div><div class="stat-value" id="s-students">0</div><div class="stat-foot">● Student directory</div></div>
+          <div class="stat"><div class="stat-top"><span class="stat-label">Accommodation Rooms</span><span class="stat-icon">▤</span></div><div class="stat-value" id="s-rooms">0</div><div class="stat-foot">● Registered rooms</div></div>
+          <div class="stat"><div class="stat-top"><span class="stat-label">Occupied Beds</span><span class="stat-icon">♧</span></div><div class="stat-value" id="s-occupied">0</div><div class="stat-foot" id="s-occupancy-note">Current residents</div></div>
+          <div class="stat"><div class="stat-top"><span class="stat-label">Pending Payments</span><span class="stat-icon">₹</span></div><div class="stat-value" id="s-pending">₹0</div><div class="stat-foot">Outstanding balances</div></div>
+        </div>
+
+        <div class="two-col">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Recently Registered</h2><p class="sub">Latest students in the directory</p></div><button class="btn light" onclick="showPage('students')">View all →</button></div>
+            <div class="table-wrap"><table><thead><tr><th>Student</th><th>Course</th><th>Room</th></tr></thead><tbody id="dash-students"></tbody></table></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Room Occupancy</h2><p class="sub">Bed availability at a glance</p></div><button class="btn light" onclick="showPage('rooms')">Details</button></div>
+            <div id="dash-rooms"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><div><h2>Quick Actions</h2><p class="sub">Common administrative tasks</p></div></div>
+          <div class="quick-grid">
+            <button class="quick" onclick="showPage('students')"><div class="quick-icon">♙</div><div class="quick-title">New Student</div><div class="quick-sub">Register resident</div></button>
+            <button class="quick" onclick="showPage('rooms')"><div class="quick-icon">▤</div><div class="quick-title">Add Room</div><div class="quick-sub">Update facilities</div></button>
+            <button class="quick" onclick="showPage('fees')"><div class="quick-icon">₹</div><div class="quick-title">Record Payment</div><div class="quick-sub">Manage hostel fees</div></button>
+            <button class="quick" onclick="showPage('complaints')"><div class="quick-icon">♧</div><div class="quick-title">View Complaints</div><div class="quick-sub">Resolve requests</div></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. STUDENTS -->
+      <section class="page" id="students">
+        <div class="heading"><div><h1>Student Directory</h1><p class="sub">Manage resident profiles and contact information.</p></div><button class="btn primary" onclick="document.getElementById('student-name').focus()">＋ Register Student</button></div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Student Registration</h2><p class="sub">Enter the student's details below.</p></div></div>
+          <form id="student-form">
+            <div class="field-grid">
+              <div class="field"><label for="student-name">Full Name *</label><input id="student-name" required placeholder="Enter full name"></div>
+              <div class="field"><label for="student-roll">Student ID *</label><input id="student-roll" required placeholder="e.g. HC107"></div>
+              <div class="field"><label for="student-course">Course *</label><select id="student-course" required><option value="">Choose course</option><option>Computer Engineering</option><option>Information Technology</option><option>Electrical Engineering</option><option>Mechanical Engineering</option><option>Civil Engineering</option><option>Electronics Engineering</option><option>Business Administration</option></select></div>
+              <div class="field"><label for="student-year">Academic Year *</label><select id="student-year" required><option value="">Choose year</option><option>First Year</option><option>Second Year</option><option>Third Year</option><option>Final Year</option></select></div>
+              <div class="field"><label for="student-phone">Contact Number *</label><input id="student-phone" required inputmode="numeric" pattern="[0-9]{10}" maxlength="10" placeholder="10-digit number"></div>
+              <div class="field"><label for="student-email">Email Address</label><input id="student-email" type="email" placeholder="student@example.com"></div>
+            </div>
+            <div class="form-actions"><button class="btn primary" type="submit">Save Student</button><button class="btn outline" type="reset">Clear Fields</button></div>
+            <p class="form-note">Sample information is provided for demonstration. Use authorised records only when adapting this site for real administration.</p>
+          </form>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>All Students</h2><p class="sub" id="student-total-label">Registered resident directory</p></div><input class="search" id="student-search" placeholder="Search by name, ID or course..."></div>
+          <div class="table-wrap"><table><thead><tr><th>Student</th><th>Course / Year</th><th>Contact</th><th>Room</th><th>Status</th><th class="no-print">Action</th></tr></thead><tbody id="students-table"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- 3. ROOMS -->
+      <section class="page" id="rooms">
+        <div class="heading"><div><h1>Rooms & Facilities</h1><p class="sub">Explore accommodation options and monitor available beds.</p></div><button class="btn primary" onclick="document.getElementById('room-number').focus()">＋ Add Room</button></div>
+        <div class="stats">
+          <div class="stat"><div class="stat-label">Total Rooms</div><div class="stat-value" id="r-total">0</div><div class="stat-foot">Registered rooms</div></div>
+          <div class="stat"><div class="stat-label">Total Beds</div><div class="stat-value" id="r-beds">0</div><div class="stat-foot">Maximum capacity</div></div>
+          <div class="stat"><div class="stat-label">Available Beds</div><div class="stat-value" id="r-free">0</div><div class="stat-foot">Ready for residents</div></div>
+          <div class="stat"><div class="stat-label">Fully Occupied</div><div class="stat-value" id="r-full">0</div><div class="stat-foot">Rooms at capacity</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Add Accommodation</h2><p class="sub">Create a room record with capacity and facilities.</p></div></div>
+          <form id="room-form">
+            <div class="field-grid">
+              <div class="field"><label for="room-number">Room Number *</label><input id="room-number" required placeholder="e.g. D-101"></div>
+              <div class="field"><label for="room-capacity">Bed Capacity *</label><select id="room-capacity"><option value="1">Single — 1 bed</option><option value="2" selected>Double sharing — 2 beds</option><option value="3">Triple sharing — 3 beds</option><option value="4">Four sharing — 4 beds</option></select></div>
+              <div class="field"><label for="room-building">Building / Wing</label><select id="room-building"><option>East Wing</option><option>West Wing</option><option>North Wing</option><option>South Wing</option></select></div>
+              <div class="field"><label for="room-facility">Facilities</label><select id="room-facility"><option>Wi-Fi, Study Desk, Wardrobe</option><option>Wi-Fi, Attached Bathroom</option><option>Study Desk, Wardrobe, Fan</option><option>Standard Furnishing</option><option>Premium Furnishing, AC</option></select></div>
+            </div>
+            <div class="form-actions"><button class="btn primary" type="submit">Save Room</button><button class="btn outline" type="reset">Clear Fields</button></div>
+          </form>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Available Accommodation</h2><p class="sub">Room photographs are illustrative examples.</p></div><select id="room-filter" style="max-width:170px"><option value="all">All rooms</option><option value="available">Available beds</option><option value="full">Fully occupied</option></select></div>
+          <div class="room-grid" id="room-grid"></div>
+        </div>
+      </section>
+
+      <!-- 4. ASSIGNMENTS -->
+      <section class="page" id="assignments">
+        <div class="heading"><div><h1>Room Assignment</h1><p class="sub">Place students in suitable rooms and track occupancy.</p></div><button class="btn outline" onclick="window.print()">⎙ Print List</button></div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Assign a Room</h2><p class="sub">Only students without a room and rooms with free beds are listed.</p></div></div>
+          <form id="assignment-form">
+            <div class="field-grid">
+              <div class="field"><label for="assign-student">Student *</label><select id="assign-student" required></select></div>
+              <div class="field"><label for="assign-room">Room *</label><select id="assign-room" required></select></div>
+            </div>
+            <div class="form-actions"><button class="btn primary" type="submit">Confirm Assignment</button></div>
+          </form>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="stat-label">Assigned Students</div><div class="stat-value" id="a-assigned">0</div></div>
+          <div class="stat"><div class="stat-label">Without a Room</div><div class="stat-value" id="a-unassigned">0</div></div>
+          <div class="stat"><div class="stat-label">Beds Available</div><div class="stat-value" id="a-available">0</div></div>
+          <div class="stat"><div class="stat-label">Occupied Rooms</div><div class="stat-value" id="a-occupied-rooms">0</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Current Residents</h2><p class="sub">Review or remove existing room assignments.</p></div><input id="assignment-search" class="search" placeholder="Search student or room..."></div>
+          <div class="table-wrap"><table><thead><tr><th>Student</th><th>Student ID</th><th>Course</th><th>Room</th><th>Building</th><th class="no-print">Action</th></tr></thead><tbody id="assignments-table"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- 5. FEES -->
+      <section class="page" id="fees">
+        <div class="heading"><div><h1>Fees & Payments</h1><p class="sub">Monitor hostel charges, payment records and outstanding balances.</p></div><button class="btn outline" onclick="window.print()">⎙ Print Statement</button></div>
+        <div class="stats">
+          <div class="stat"><div class="stat-label">Total Hostel Charges</div><div class="stat-value" id="f-total">₹0</div><div class="stat-foot">Recorded charges</div></div>
+          <div class="stat"><div class="stat-label">Amount Collected</div><div class="stat-value" id="f-collected">₹0</div><div class="stat-foot">Recorded payments</div></div>
+          <div class="stat"><div class="stat-label">Outstanding</div><div class="stat-value" id="f-outstanding">₹0</div><div class="stat-foot">Pending balances</div></div>
+          <div class="stat"><div class="stat-label">Fully Paid</div><div class="stat-value" id="f-paid">0</div><div class="stat-foot">Student accounts</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Record a Payment</h2><p class="sub">Enter a payment against a registered student's hostel charges.</p></div></div>
+          <form id="fee-form">
+            <div class="field-grid">
+              <div class="field"><label for="fee-student">Student *</label><select id="fee-student" required></select></div>
+              <div class="field"><label for="fee-amount">Payment Amount (₹) *</label><input id="fee-amount" type="number" min="1" step="1" required placeholder="e.g. 5000"></div>
+              <div class="field"><label for="fee-method">Payment Method</label><select id="fee-method"><option>UPI</option><option>Bank Transfer</option><option>Cash</option><option>Card</option></select></div>
+              <div class="field"><label for="fee-date">Payment Date</label><input id="fee-date" type="date" required></div>
+            </div>
+            <div class="form-actions"><button class="btn primary" type="submit">Record Payment</button></div>
+            <p class="form-note">All fee amounts and payment records are sample data stored in this browser. This is not a real payment gateway.</p>
+          </form>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Student Fee Ledger</h2><p class="sub">Default sample hostel charge: ₹30,000 per student.</p></div><input id="fee-search" class="search" placeholder="Search student..."></div>
+          <div class="table-wrap"><table><thead><tr><th>Student</th><th>Total Charges</th><th>Paid</th><th>Balance</th><th>Payment Status</th><th class="no-print">Action</th></tr></thead><tbody id="fees-table"></tbody></table></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Recent Transactions</h2><p class="sub">Payment entries recorded in this browser.</p></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Receipt</th><th>Student</th><th>Date</th><th>Method</th><th>Amount</th></tr></thead><tbody id="transactions-table"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- 6. COMPLAINTS -->
+      <section class="page" id="complaints">
+        <div class="heading"><div><h1>Help & Maintenance</h1><p class="sub">Register concerns and monitor their resolution.</p></div></div>
+        <div class="two-col">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Submit a Complaint</h2><p class="sub">Record a maintenance issue or resident concern.</p></div></div>
+            <form id="complaint-form">
+              <div class="field-grid">
+                <div class="field full"><label for="complaint-student">Student *</label><select id="complaint-student" required></select></div>
+                <div class="field"><label for="complaint-category">Category</label><select id="complaint-category"><option>Maintenance</option><option>Cleanliness</option><option>Electricity</option><option>Water Supply</option><option>Wi-Fi</option><option>Other</option></select></div>
+                <div class="field"><label for="complaint-priority">Priority</label><select id="complaint-priority"><option>Normal</option><option>High</option><option>Urgent</option></select></div>
+                <div class="field full"><label for="complaint-title">Subject *</label><input id="complaint-title" required placeholder="Short description of the issue"></div>
+                <div class="field full"><label for="complaint-description">Details *</label><textarea id="complaint-description" required placeholder="Describe the issue and location..."></textarea></div>
+              </div>
+              <div class="form-actions"><button class="btn primary" type="submit">Submit Complaint</button></div>
+            </form>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Service Overview</h2><p class="sub">Current status of reported concerns.</p></div></div>
+            <div class="metric-line"><span>Total complaints</span><strong id="c-total">0</strong></div>
+            <div class="metric-line"><span>Open</span><strong id="c-open">0</strong></div>
+            <div class="metric-line"><span>In progress</span><strong id="c-progress">0</strong></div>
+            <div class="metric-line"><span>Resolved</span><strong id="c-resolved">0</strong></div>
+            <div style="margin-top:22px;padding:15px;border-radius:10px;background:#f1f7f2;font-size:11px;line-height:1.8;color:#5c7665">Tip: Update each complaint's status as the maintenance team works on it. The dashboard will reflect the latest status.</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Complaint Register</h2><p class="sub">Track requests from submission to resolution.</p></div><select id="complaint-filter" style="max-width:160px"><option value="all">All statuses</option><option>Open</option><option>In Progress</option><option>Resolved</option></select></div>
+          <div id="complaints-list"></div>
+        </div>
+      </section>
+
+      <!-- 7. NOTICES -->
+      <section class="page" id="notices">
+        <div class="heading"><div><h1>Notices & Announcements</h1><p class="sub">Share important updates and reminders with residents.</p></div></div>
+        <div class="two-col">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Publish a Notice</h2><p class="sub">Create an announcement for hostel residents.</p></div></div>
+            <form id="notice-form">
+              <div class="field-grid">
+                <div class="field full"><label for="notice-title">Notice Title *</label><input id="notice-title" required placeholder="Enter announcement title"></div>
+                <div class="field"><label for="notice-category">Category</label><select id="notice-category"><option>General</option><option>Maintenance</option><option>Event</option><option>Payment Reminder</option><option>Important</option></select></div>
+                <div class="field"><label for="notice-audience">Audience</label><select id="notice-audience"><option>All Residents</option><option>First Year</option><option>Second Year</option><option>Third Year</option><option>Final Year</option></select></div>
+                <div class="field full"><label for="notice-body">Announcement *</label><textarea id="notice-body" required placeholder="Write the notice here..."></textarea></div>
+              </div>
+              <div class="form-actions"><button class="btn primary" type="submit">Publish Notice</button></div>
+            </form>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Resident Guidelines</h2><p class="sub">Example hostel reminders</p></div></div>
+            <div class="notice"><div class="notice-icon">◷</div><div><div class="notice-title">Quiet Hours</div><div class="notice-text">Please respect other residents during designated quiet hours and study periods.</div></div></div>
+            <div class="notice"><div class="notice-icon">♧</div><div><div class="notice-title">Clean Common Areas</div><div class="notice-text">Keep corridors, washrooms and shared facilities clean and tidy.</div></div></div>
+            <div class="notice"><div class="notice-icon">▤</div><div><div class="notice-title">Report Maintenance</div><div class="notice-text">Report room repairs and facility concerns through the maintenance register.</div></div></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Published Announcements</h2><p class="sub">Latest hostel updates</p></div><span class="badge green" id="notice-count">0 notices</span></div>
+          <div id="notices-list"></div>
+        </div>
+      </section>
+
+      <!-- 8. REPORTS -->
+      <section class="page" id="reports">
+        <div class="heading"><div><h1>Management Reports</h1><p class="sub">A consolidated view of occupancy, payments and maintenance.</p></div><button class="btn primary no-print" onclick="window.print()">⎙ Print Current Report</button></div>
+        <div class="stats">
+          <div class="stat"><div class="stat-label">Registered Students</div><div class="stat-value" id="rp-students">0</div></div>
+          <div class="stat"><div class="stat-label">Bed Capacity</div><div class="stat-value" id="rp-beds">0</div></div>
+          <div class="stat"><div class="stat-label">Occupancy Rate</div><div class="stat-value" id="rp-rate">0%</div></div>
+          <div class="stat"><div class="stat-label">Open Complaints</div><div class="stat-value" id="rp-complaints">0</div></div>
+        </div>
+        <div class="two-col">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Residence Summary</h2><p class="sub">Current recorded information</p></div></div>
+            <div class="metric-line"><span>Total students</span><strong id="rp-student-detail">0</strong></div>
+            <div class="metric-line"><span>Total rooms</span><strong id="rp-room-detail">0</strong></div>
+            <div class="metric-line"><span>Total beds</span><strong id="rp-bed-detail">0</strong></div>
+            <div class="metric-line"><span>Occupied beds</span><strong id="rp-occupied-detail">0</strong></div>
+            <div class="metric-line"><span>Available beds</span><strong id="rp-free-detail">0</strong></div>
+            <div class="metric-line"><span>Students without rooms</span><strong id="rp-unassigned-detail">0</strong></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Financial Summary</h2><p class="sub">Recorded hostel fee balances</p></div></div>
+            <div class="metric-line"><span>Total charges</span><strong id="rp-charges">₹0</strong></div>
+            <div class="metric-line"><span>Collected payments</span><strong id="rp-paid">₹0</strong></div>
+            <div class="metric-line"><span>Outstanding balance</span><strong id="rp-balance">₹0</strong></div>
+            <div class="metric-line"><span>Resolved complaints</span><strong id="rp-resolved">0</strong></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Room Occupancy Register</h2><p class="sub">Print-friendly record of every room.</p></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Room</th><th>Building</th><th>Type</th><th>Capacity</th><th>Occupied</th><th>Available</th><th>Status</th></tr></thead><tbody id="report-rooms"></tbody></table></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Student Fee Statement</h2><p class="sub">Charges and balances for all registered residents.</p></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Student</th><th>Student ID</th><th>Charges</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead><tbody id="report-fees"></tbody></table></div>
+        </div>
+      </section>
+
+    </div>
+    <footer class="footer">HostelCare · Residence Management Suite · Sample data for demonstration</footer>
+  </main>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div class="overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">⌂</div>
+    <h2>Welcome back.</h2>
+    <p>Sign in to access your residence management workspace.</p>
+    <form id="login-form">
+      <div class="field"><label for="login-user">Administrator ID</label><input id="login-user" required autocomplete="username" value="admin"></div>
+      <div class="field"><label for="login-pass">Password</label><input id="login-pass" type="password" required autocomplete="current-password" placeholder="Enter password"></div>
+      <div class="login-error" id="login-error"></div>
+      <button class="btn primary" type="submit" style="width:100%;padding:13px">Sign In →</button>
+    </form>
+    <div class="login-hint">Demo sign-in<br><strong>Username:</strong> admin<br><strong>Password:</strong> admin123</div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+const KEY = "hostelcare_premium_v1";
+const DEFAULT_FEE = 30000;
+
+const initialData = {
+  students: [
+    {id:1001,name:"Aarav Sharma",roll:"HC101",course:"Computer Engineering",year:"Second Year",phone:"9876543210",email:"aarav@example.com"},
+    {id:1002,name:"Sara Khan",roll:"HC102",course:"Information Technology",year:"First Year",phone:"9876543211",email:"sara@example.com"},
+    {id:1003,name:"Rehan Patel",roll:"HC103",course:"Computer Engineering",year:"Third Year",phone:"9876543212",email:"rehan@example.com"},
+    {id:1004,name:"Ananya Desai",roll:"HC104",course:"Electrical Engineering",year:"Second Year",phone:"9876543213",email:"ananya@example.com"},
+    {id:1005,name:"Zoya Shaikh",roll:"HC105",course:"Mechanical Engineering",year:"First Year",phone:"9876543214",email:"zoya@example.com"},
+    {id:1006,name:"Kabir Mehta",roll:"HC106",course:"Civil Engineering",year:"Final Year",phone:"9876543215",email:"kabir@example.com"}
+  ],
+  rooms: [
+    {id:201,number:"A-101",capacity:2,building:"East Wing",facility:"Wi-Fi, Study Desk, Wardrobe",photo:"https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=900&q=80"},
+    {id:202,number:"A-102",capacity:3,building:"East Wing",facility:"Wi-Fi, Attached Bathroom",photo:"https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=900&q=80"},
+    {id:203,number:"B-201",capacity:2,building:"West Wing",facility:"Study Desk, Wardrobe, Fan",photo:"https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=900&q=80"},
+    {id:204,number:"B-202",capacity:1,building:"West Wing",facility:"Premium Furnishing, AC",photo:"https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=900&q=80"},
+    {id:205,number:"C-101",capacity:4,building:"North Wing",facility:"Standard Furnishing",photo:"https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=900&q=80"},
+    {id:206,number:"C-102",capacity:2,building:"North Wing",facility:"Wi-Fi, Study Desk, Wardrobe",photo:"https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=900&q=80"}
+  ],
+  assignments: [
+    {id:301,studentId:1001,roomId:201},
+    {id:302,studentId:1002,roomId:202},
+    {id:303,studentId:1003,roomId:203},
+    {id:304,studentId:1004,roomId:201},
+    {id:305,studentId:1005,roomId:204}
+  ],
+  fees: [
+    {id:401,studentId:1001,charge:30000,payments:[{id:501,amount:30000,date:"2026-09-01",method:"UPI"}]},
+    {id:402,studentId:1002,charge:30000,payments:[{id:502,amount:15000,date:"2026-09-02",method:"Bank Transfer"}]},
+    {id:403,studentId:1003,charge:30000,payments:[{id:503,amount:20000,date:"2026-09-03",method:"UPI"}]},
+    {id:404,studentId:1004,charge:30000,payments:[{id:504,amount:30000,date:"2026-09-04",method:"Bank Transfer"}]},
+    {id:405,studentId:1005,charge:30000,payments:[{id:505,amount:10000,date:"2026-09-05",method:"Cash"}]},
+    {id:406,studentId:1006,charge:30000,payments:[]}
+  ],
+  complaints: [
+    {id:601,studentId:1002,category:"Maintenance",priority:"High",title:"Ceiling fan needs repair",description:"The ceiling fan in the room needs inspection and repair.",status:"In Progress",date:"2026-09-22"},
+    {id:602,studentId:1005,category:"Wi-Fi",priority:"Normal",title:"Intermittent Wi-Fi connection",description:"The connection drops frequently during evening study hours.",status:"Open",date:"2026-09-24"},
+    {id:603,studentId:1001,category:"Cleanliness",priority:"Normal",title:"Common area cleaning",description:"Requesting a routine cleaning of the shared corridor.",status:"Resolved",date:"2026-09-20"}
+  ],
+  notices: [
+    {id:701,title:"Welcome to the New Academic Term",category:"General",audience:"All Residents",body:"Welcome to all residents. Please ensure your contact details and room information are up to date.",date:"2026-09-20"},
+    {id:702,title:"Common Area Maintenance",category:"Maintenance",audience:"All Residents",body:"Routine maintenance is scheduled for common areas. Please keep personal belongings clear of the corridors.",date:"2026-09-24"},
+    {id:703,title:"Hostel Fee Reminder",category:"Payment Reminder",audience:"All Residents",body:"Residents are encouraged to review their fee statements and contact the hostel office regarding any balance queries.",date:"2026-09-26"}
+  ]
+};
+
+function clone(obj){return JSON.parse(JSON.stringify(obj))}
+function loadData(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(!raw)return clone(initialData);
+    const d=JSON.parse(raw);
+    for(const k of Object.keys(initialData)){
+      if(!Array.isArray(d[k]))d[k]=clone(initialData[k]);
+    }
+    return d;
+  }catch(e){return clone(initialData)}
+}
+let data=loadData();
+
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(data));}
+  catch(e){toast("Unable to save. Browser storage may be full.","error");}
+}
+function esc(s){
+  return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function money(n){return "₹"+Number(n||0).toLocaleString("en-IN")}
+function dateText(d){
+  if(!d)return "—";
+  const parts=String(d).split("-");
+  if(parts.length!==3)return esc(d);
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+function todayISO(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function student(id){return data.students.find(s=>s.id===Number(id))}
+function room(id){return data.rooms.find(r=>r.id===Number(id))}
+function assignment(id){return data.assignments.find(a=>a.studentId===Number(id))}
+function occupied(id){return data.assignments.filter(a=>a.roomId===Number(id)).length}
+function freeBeds(r){return Math.max(0,r.capacity-occupied(r.id))}
+function totalBeds(){return data.rooms.reduce((s,r)=>s+r.capacity,0)}
+function feeRecord(id){return data.fees.find(f=>f.studentId===Number(id))}
+function paidAmount(f){return (f?.payments||[]).reduce((s,p)=>s+Number(p.amount||0),0)}
+function balance(f){return Math.max(0,Number(f?.charge||DEFAULT_FEE)-paidAmount(f))}
+function initials(name){return String(name||"?").split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase()}
+function roomType(cap){return ({1:"Single Room",2:"Double Sharing",3:"Triple Sharing",4:"Four Sharing"})[cap]||"Shared Room"}
+function statusBadge(status){
+  const cls=status==="Resolved"||status==="Paid"?"green":status==="In Progress"||status==="Partial"?"orange":status==="Urgent"?"red":"gray";
+  return `<span class="badge ${cls}">${esc(status)}</span>`;
+}
+function emptyRow(cols,msg="No records found."){return `<tr><td colspan="${cols}" class="empty">${esc(msg)}</td></tr>`}
+
+let toastTimer;
+function toast(message,type=""){
+  document.querySelectorAll(".toast").forEach(n=>n.remove());
+  const el=document.createElement("div");
+  el.className="toast "+type;
+  el.textContent=message;
+  document.body.appendChild(el);
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.remove(),3000);
+}
+
+const pageTitles={
+ dashboard:"Dashboard",students:"Student Directory",rooms:"Rooms & Facilities",
+ assignments:"Room Assignment",fees:"Fees & Payments",complaints:"Help & Maintenance",
+ notices:"Notices & Announcements",reports:"Management Reports"
+};
+function showPage(id){
+  if(!pageTitles[id])return;
+  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));
+  document.querySelectorAll(".nav-btn[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
+  document.getElementById("top-title").textContent=pageTitles[id];
+  document.getElementById("crumb").textContent=pageTitles[id];
+  render();
+  if(window.innerWidth<650)window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".nav-btn[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+document.getElementById("today-date").textContent=new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+document.getElementById("fee-date").value=todayISO();
+
+function render(){
+  renderDashboard();
+  renderStudents();
+  renderRooms();
+  renderAssignments();
+  renderFees();
+  renderComplaints();
+  renderNotices();
+  renderReports();
+  document.getElementById("student-count").textContent=data.students.length;
+  document.getElementById("complaint-count").textContent=data.complaints.filter(c=>c.status!=="Resolved").length;
+}
+
+function renderDashboard(){
+  const beds=totalBeds(),used=data.assignments.length,free=Math.max(0,beds-used);
+  const outstanding=data.students.reduce((s,x)=>s+balance(feeRecord(x.id)),0);
+  document.getElementById("s-students").textContent=data.students.length;
+  document.getElementById("s-rooms").textContent=data.rooms.length;
+  document.getElementById("s-occupied").textContent=used;
+  document.getElementById("s-pending").textContent=money(outstanding);
+  document.getElementById("s-occupancy-note").textContent=(beds?Math.round(used/beds*100):0)+"% of total bed capacity";
+
+  document.getElementById("dash-students").innerHTML=data.students.slice(-5).reverse().map(s=>{
+    const a=assignment(s.id),r=a?room(a.roomId):null;
+    return `<tr><td><div class="person"><div class="person-avatar">${esc(initials(s.name))}</div><div><div class="person-name">${esc(s.name)}</div><div class="person-sub">${esc(s.roll)}</div></div></div></td><td>${esc(s.course)}</td><td>${r?statusBadge(r.number):statusBadge("Unassigned")}</td></tr>`;
+  }).join("")||emptyRow(3);
+
+  document.getElementById("dash-rooms").innerHTML=data.rooms.slice(0,6).map(r=>{
+    const used=occupied(r.id),pct=Math.min(100,used/r.capacity*100);
+    return `<div class="room-mini"><div class="room-mini-top"><strong>${esc(r.number)}</strong><span>${used}/${r.capacity} beds occupied</span></div><div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div></div>`;
+  }).join("")||`<div class="empty">No rooms registered.</div>`;
+}
+
+document.getElementById("student-form").addEventListener("submit",e=>{
+  e.preventDefault();
+  const name=document.getElementById("student-name").value.trim();
+  const roll=document.getElementById("student-roll").value.trim();
+  const course=document.getElementById("student-course").value;
+  const year=document.getElementById("student-year").value;
+  const phone=document.getElementById("student-phone").value.trim();
+  const email=document.getElementById("student-email").value.trim();
+  if(data.students.some(s=>s.roll.toLowerCase()===roll.toLowerCase()))return toast("That student ID is already registered.","error");
+  const id=Date.now();
+  data.students.push({id,name,roll,course,year,phone,email});
+  data.fees.push({id:id+1,studentId:id,charge:DEFAULT_FEE,payments:[]});
+  save();e.target.reset();render();toast("Student registered successfully.");
+});
+function renderStudents(){
+  const q=(document.getElementById("student-search").value||"").toLowerCase();
+  const rows=data.students.filter(s=>[s.name,s.roll,s.course,s.year,s.phone,s.email].join(" ").toLowerCase().includes(q));
+  document.getElementById("student-total-label").textContent=`${data.students.length} registered student(s)`;
+  document.getElementById("students-table").innerHTML=rows.map(s=>{
+    const a=assignment(s.id),r=a?room(a.roomId):null;
+    return `<tr><td><div class="person"><div class="person-avatar">${esc(initials(s.name))}</div><div><div class="person-name">${esc(s.name)}</div><div class="person-sub">${esc(s.roll)}</div></div></div></td><td>${esc(s.course)}<div class="person-sub">${esc(s.year)}</div></td><td>${esc(s.phone)}<div class="person-sub">${esc(s.email||"No email")}</div></td><td>${r?esc(r.number):"—"}</td><td>${statusBadge(a?"Assigned":"Unassigned")}</td><td class="no-print"><button class="btn danger small" onclick="deleteStudent(${s.id})">Remove</button></td></tr>`;
+  }).join("")||emptyRow(6,"No matching students.");
+}
+document.getElementById("student-search").addEventListener("input",renderStudents);
+function deleteStudent(id){
+  const s=student(id);if(!s)return;
+  if(!confirm(`Remove ${s.name} and their associated records?`))return;
+  data.students=data.students.filter(x=>x.id!==id);
+  data.assignments=data.assignments.filter(a=>a.studentId!==id);
+  data.fees=data.fees.filter(f=>f.studentId!==id);
+  data.complaints=data.complaints.filter(c=>c.studentId!==id);
+  save();render();toast("Student and associated records removed.");
+}
+
+document.getElementById("room-form").addEventListener("submit",e=>{
+  e.preventDefault();
+  const number=document.getElementById("room-number").value.trim();
+  if(data.rooms.some(r=>r.number.toLowerCase()===number.toLowerCase()))return toast("Room number already exists.","error");
+  const cap=Number(document.getElementById("room-capacity").value);
+  const building=document.getElementById("room-building").value;
+  const facility=document.getElementById("room-facility").value;
+  data.rooms.push({id:Date.now(),number,capacity:cap,building,facility,photo:"https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=900&q=80"});
+  save();e.target.reset();render();toast("Room added successfully.");
+});
+document.getElementById("room-filter").addEventListener("change",renderRooms);
+function renderRooms(){
+  const beds=totalBeds(),free=Math.max(0,beds-data.assignments.length);
+  document.getElementById("r-total").textContent=data.rooms.length;
+  document.getElementById("r-beds").textContent=beds;
+  document.getElementById("r-free").textContent=free;
+  document.getElementById("r-full").textContent=data.rooms.filter(r=>freeBeds(r)===0).length;
+  const filter=document.getElementById("room-filter").value;
+  const list=data.rooms.filter(r=>filter==="available"?freeBeds(r)>0:filter==="full"?freeBeds(r)===0:true);
+  document.getElementById("room-grid").innerHTML=list.map(r=>{
+    const used=occupied(r.id),free=freeBeds(r),pct=Math.min(100,used/r.capacity*100);
+    return `<article class="room-card"><div class="room-photo"><img loading="lazy" src="${esc(r.photo)}" alt="${esc(r.number)} accommodation" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#dcece1,#b8d8c3)'"><div class="room-label">${statusBadge(free?"Available":"Full")}</div></div><div class="room-body"><div class="room-title-row"><div class="room-number">${esc(r.number)}</div><span class="badge gray">${r.capacity} bed${r.capacity>1?"s":""}</span></div><div class="room-type">${esc(roomType(r.capacity))} · ${esc(r.building||"Main Wing")}</div><div class="room-info"><span>Bed occupancy</span><strong>${used} of ${r.capacity}</strong></div><div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div><div class="room-info" style="margin-top:10px"><span>${esc(r.facility||"Standard facilities")}</span><strong>${free} free</strong></div><div class="room-footer"><button class="btn light small" onclick="showPage('assignments')">Manage beds →</button><button class="btn danger small no-print" onclick="deleteRoom(${r.id})">Remove</button></div></div></article>`;
+  }).join("")||`<div class="empty">No rooms match this filter.</div>`;
+}
+function deleteRoom(id){
+  const r=room(id);if(!r)return;
+  if(occupied(id)>0)return toast("Remove the room's student assignments first.","error");
+  if(!confirm(`Remove room ${r.number}?`))return;
+  data.rooms=data.rooms.filter(x=>x.id!==id);save();render();toast("Room removed.");
+}
+
+function renderAssignmentOptions(){
+  const ss=document.getElementById("assign-student");
+  const rs=document.getElementById("assign-room");
+  const unassigned=data.students.filter(s=>!assignment(s.id));
+  ss.innerHTML='<option value="">Choose a student</option>'+unassigned.map(s=>`<option value="${s.id}">${esc(s.name)} · ${esc(s.roll)}</option>`).join("");
+  rs.innerHTML='<option value="">Choose an available room</option>'+data.rooms.filter(r=>freeBeds(r)>0).map(r=>`<option value="${r.id}">${esc(r.number)} · ${freeBeds(r)} free bed(s)</option>`).join("");
+  if(!unassigned.length)ss.innerHTML='<option value="">All students assigned</option>';
+  if(!data.rooms.some(r=>freeBeds(r)>0))rs.innerHTML='<option value="">No available rooms</option>';
+}
+document.getElementById("assignment-form").addEventListener("submit",e=>{
+  e.preventDefault();
+  const sid=Number(document.getElementById("assign-student").value),rid=Number(document.getElementById("assign-room").value);
+  if(!student(sid)||!room(rid))return toast("Choose a valid student and room.","error");
+  if(assignment(sid))return toast("This student already has a room.","error");
+  if(freeBeds(room(rid))<1)return toast("The selected room is full.","error");
+  data.assignments.push({id:Date.now(),studentId:sid,roomId:rid});
+  save();e.target.reset();render();toast("Room assignment saved.");
+});
+document.getElementById("assignment-search").addEventListener("input",renderAssignments);
+function renderAssignments(){
+  const beds=totalBeds();
+  document.getElementById("a-assigned").textContent=data.assignments.length;
+  document.getElementById("a-unassigned").textContent=data.students.filter(s=>!assignment(s.id)).length;
+  document.getElementById("a-available").textContent=Math.max(0,beds-data.assignments.length);
+  document.getElementById("a-occupied-rooms").textContent=data.rooms.filter(r=>occupied(r.id)>0).length;
+  renderAssignmentOptions();
+  const q=(document.getElementById("assignment-search").value||"").toLowerCase();
+  const rows=data.assignments.filter(a=>{
+    const s=student(a.studentId),r=room(a.roomId);
+    return s&&r&&[s.name,s.roll,s.course,r.number,r.building].join(" ").toLowerCase().includes(q);
+  });
+  document.getElementById("assignments-table").innerHTML=rows.map(a=>{
+    const s=student(a.studentId),r=room(a.roomId);
+    return `<tr><td><div class="person"><div class="person-avatar">${esc(initials(s.name))}</div><div><div class="person-name">${esc(s.name)}</div><div class="person-sub">${esc(s.year)}</div></div></div></td><td>${esc(s.roll)}</td><td>${esc(s.course)}</td><td>${statusBadge(r.number)}</td><td>${esc(r.building||"Main Wing")}</td><td class="no-print"><button class="btn danger small" onclick="removeAssignment(${a.id})">Unassign</button></td></tr>`;
+  }).join("")||emptyRow(6,"No room assignments match your search.");
+}
+function removeAssignment(id){
+  if(!confirm("Remove this student's room assignment?"))return;
+  data.assignments=data.assignments.filter(a=>a.id!==id);save();render();toast("Room assignment removed.");
+}
+
+document.getElementById("fee-form").addEventListener("submit",e=>{
+  e.preventDefault();
+  const sid=Number(document.getElementById("fee-student").value);
+  const amount=Number(document.getElementById("fee-amount").value);
+  if(!student(sid)||!Number.isFinite(amount)||amount<=0)return toast("Enter a valid student and payment amount.","error");
+  let f=feeRecord(sid);
+  if(!f){f={id:Date.now(),studentId:sid,charge:DEFAULT_FEE,payments:[]};data.fees.push(f);}
+  if(paidAmount(f)+amount>Number(f.charge))return toast("Payment exceeds the outstanding balance.","error");
+  f.payments.push({id:Date.now()+1,amount,date:document.getElementById("fee-date").value||todayISO(),method:document.getElementById("fee-method").value});
+  save();e.target.reset();document.getElementById("fee-date").value=todayISO();render();toast("Payment recorded successfully.");
+});
+document.getElementById("fee-search").addEventListener("input",renderFees);
+function renderFees(){
+  const fs=data.students.map(s=>({s,f:feeRecord(s.id)}));
+  const charges=fs.reduce((sum,x)=>sum+Number(x.f?.charge??DEFAULT_FEE),0);
+  const collected=fs.reduce((sum,x)=>sum+paidAmount(x.f),0);
+  const outstanding=fs.reduce((sum,x)=>sum+balance(x.f),0);
+  document.getElementById("f-total").textContent=money(charges);
+  document.getElementById("f-collected").textContent=money(collected);
+  document.getElementById("f-outstanding").textContent=money(outstanding);
+  document.getElementById("f-paid").textContent=fs.filter(x=>balance(x.f)===0).length;
+  const sel=document.getElementById("fee-student");
+  const previous=sel.value;
+  sel.innerHTML='<option value="">Choose student</option>'+data.students.map(s=>`<option value="${s.id}">${esc(s.name)} · ${esc(s.roll)}</option>`).join("");
+  if(previous&&student(previous))sel.value=previous;
+  const q=(document.getElementById("fee-search").value||"").toLowerCase();
+  const rows=fs.filter(({s})=>(s.name+" "+s.roll).toLowerCase().includes(q));
+  document.getElementById("fees-table").innerHTML=rows.map(({s,f})=>{
+    const charge=Number(f?.charge??DEFAULT_FEE),paid=paidAmount(f),bal=balance(f);
+    const status=bal===0?"Paid":paid>0?"Partial":"Pending";
+    return `<tr><td><div class="person"><div class="person-avatar">${esc(initials(s.name))}</div><div><div class="person-name">${esc(s.name)}</div><div class="person-sub">${esc(s.roll)}</div></div></div></td><td>${money(charge)}</td><td>${money(paid)}</td><td><strong>${money(bal)}</strong></td><td>${statusBadge(status)}</td><td class="no-print">${bal>0?`<button class="btn light small" onclick="quickPayment(${s.id})">Add payment</button>`:"—"}</td></tr>`;
+  }).join("")||emptyRow(6);
+  const transactions=[];
+  data.fees.forEach(f=>(f.payments||[]).forEach(p=>transactions.push({p,s:student(f.studentId)})));
+  transactions.sort((a,b)=>String(b.p.date).localeCompare(String(a.p.date)));
+  document.getElementById("transactions-table").innerHTML=transactions.map(({p,s})=>`<tr><td>RC-${p.id}</td><td>${esc(s?.name||"Unknown")}</td><td>${dateText(p.date)}</td><td>${esc(p.method)}</td><td><strong>${money(p.amount)}</strong></td></tr>`).join("")||emptyRow(5,"No payments recorded.");
+}
+function quickPayment(id){
+  const f=feeRecord(id),s=student(id);
+  if(!f||!s)return;
+  document.getElementById("fee-student").value=id;
+  document.getElementById("fee-amount").value=balance(f)||"";
+  document.getElementById("fee-amount").focus();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+document.getElementById("complaint-form").addEventListener("submit",e=>{
+  e.preventDefault();
+  const sid=Number(document.getElementById("complaint-student").value);
+  if(!student(sid))return toast("Select a registered student.","error");
+  data.complaints.unshift({
+    id:Date.now(),studentId:sid,category:document.getElementById("complaint-category").value,
+    priority:document.getElementById("complaint-priority").value,
+    title:document.getElementById("complaint-title").value.trim(),
+    description:document.getElementById("complaint-description").value.trim(),
+    status:"Open",date:todayISO()
+  });
+  save();e.target.reset();render();toast("Complaint submitted successfully.");
+});
+document.getElementById("complaint-filter").addEventListener("change",renderComplaints);
+function renderComplaints(){
+  const open=data.complaints.filter(c=>c.status==="Open").length;
+  const progress=data.complaints.filter(c=>c.status==="In Progress").length;
+  const resolved=data.complaints.filter(c=>c.status==="Resolved").length;
+  document.getElementById("c-total").textContent=data.complaints.length;
+  document.getElementById("c-open").textContent=open;
+  document.getElementById("c-progress").textContent=progress;
+  document.getElementById("c-resolved").textContent=resolved;
+  const sel=document.getElementById("complaint-student"),prev=sel.value;
+  sel.innerHTML='<option value="">Choose student</option>'+data.students.map(s=>`<option value="${s.id}">${esc(s.name)} · ${esc(s.roll)}</option>`).join("");
+  if(prev&&student(prev))sel.value=prev;
+  const filter=document.getElementById("complaint-filter").value;
+  const rows=data.complaints.filter(c=>filter==="all"||c.status===filter);
+  document.getElementById("complaints-list").innerHTML=rows.map(c=>{
+    const s=student(c.studentId);
+    return `<article class="ticket"><div class="ticket-top"><div class="ticket-title">${esc(c.title)}</div>${statusBadge(c.status)}</div><div class="ticket-description">${esc(c.description)}</div><div class="ticket-bottom"><div style="font-size:10px;color:#829087">${esc(s?.name||"Former student")} · ${esc(c.category)} · ${dateText(c.date)}</div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="badge ${c.priority==="Urgent"?"red":c.priority==="High"?"orange":"gray"}">${esc(c.priority)}</span><select class="no-print" aria-label="Complaint status" style="width:125px;padding:7px;font-size:10px" onchange="changeComplaint(${c.id},this.value)"><option ${c.status==="Open"?"selected":""}>Open</option><option ${c.status==="In Progress"?"selected":""}>In Progress</option><option ${c.status==="Resolved"?"selected":""}>Resolved</option></select><button class="btn danger small no-print" onclick="deleteComplaint(${c.id})">Delete</button></div></div></article>`;
+  }).join("")||`<div class="empty">No complaints in this view.</div>`;
+}
+function changeComplaint(id,status){
+  const c=data.complaints.find(x=>x.id===id);if(!c)return;
+  c.status=status;save();render();toast("Complaint status updated.");
+}
+function deleteComplaint(id){
+  if(!confirm("Delete this complaint record?"))return;
+  data.complaints=data.complaints.filter(c=>c.id!==id);save();render();toast("Complaint removed.");
+}
+
+document.getElementById("notice-form").addEventListener("submit",e=>{
+  e.preventDefault();
+  data.notices.unshift({
+    id:Date.now(),title:document.getElementById("notice-title").value.trim(),
+    category:document.getElementById("notice-category").value,
+    audience:document.getElementById("notice-audience").value,
+    body:document.getElementById("notice-body").value.trim(),date:todayISO()
+  });
+  save();e.target.reset();render();toast("Notice published successfully.");
+});
+function renderNotices(){
+  document.getElementById("notice-count").textContent=data.notices.length+" notice(s)";
+  document.getElementById("notices-list").innerHTML=data.notices.map(n=>`<article class="notice"><div class="notice-icon">${n.category==="Maintenance"?"⚒":n.category==="Event"?"✦":n.category==="Payment Reminder"?"₹":"▧"}</div><div style="flex:1;min-width:0"><div class="notice-title">${esc(n.title)}</div><div class="notice-text">${esc(n.body)}</div><div class="notice-date">${dateText(n.date)} · ${esc(n.category)} · ${esc(n.audience)}</div></div><button class="btn danger small no-print" onclick="deleteNotice(${n.id})">Delete</button></article>`).join("")||`<div class="empty">No notices have been published.</div>`;
+}
+function deleteNotice(id){
+  if(!confirm("Delete this notice?"))return;
+  data.notices=data.notices.filter(n=>n.id!==id);save();render();toast("Notice deleted.");
+}
+
+function renderReports(){
+  const beds=totalBeds(),used=data.assignments.length,free=Math.max(0,beds-used);
+  const outstanding=data.students.reduce((sum,s)=>sum+balance(feeRecord(s.id)),0);
+  const charges=data.students.reduce((sum,s)=>sum+Number(feeRecord(s.id)?.charge??DEFAULT_FEE),0);
+  const paid=charges-outstanding;
+  const unresolved=data.complaints.filter(c=>c.status!=="Resolved").length;
+  const put=(id,v)=>document.getElementById(id).textContent=v;
+  put("rp-students",data.students.length);put("rp-beds",beds);put("rp-rate",beds?Math.round(used/beds*100)+"%":"0%");
+  put("rp-complaints",unresolved);put("rp-student-detail",data.students.length);put("rp-room-detail",data.rooms.length);
+  put("rp-bed-detail",beds);put("rp-occupied-detail",used);put("rp-free-detail",free);
+  put("rp-unassigned-detail",data.students.filter(s=>!assignment(s.id)).length);
+  put("rp-charges",money(charges));put("rp-paid",money(paid));put("rp-balance",money(outstanding));
+  put("rp-resolved",data.complaints.filter(c=>c.status==="Resolved").length);
+  document.getElementById("report-rooms").innerHTML=data.rooms.map(r=>`<tr><td><strong>${esc(r.number)}</strong></td><td>${esc(r.building||"Main Wing")}</td><td>${esc(roomType(r.capacity))}</td><td>${r.capacity}</td><td>${occupied(r.id)}</td><td>${freeBeds(r)}</td><td>${statusBadge(freeBeds(r)?"Available":"Full")}</td></tr>`).join("")||emptyRow(7);
+  document.getElementById("report-fees").innerHTML=data.students.map(s=>{
+    const f=feeRecord(s.id),ch=Number(f?.charge??DEFAULT_FEE),p=paidAmount(f),b=balance(f);
+    return `<tr><td>${esc(s.name)}</td><td>${esc(s.roll)}</td><td>${money(ch)}</td><td>${money(p)}</td><td>${money(b)}</td><td>${statusBadge(b===0?"Paid":p>0?"Partial":"Pending")}</td></tr>`;
+  }).join("")||emptyRow(6);
+}
+
+/* Demo login: front-end only, not secure authentication. */
+document.getElementById("login-form").addEventListener("submit",e=>{
+  e.preventDefault();
+  const u=document.getElementById("login-user").value.trim();
+  const p=document.getElementById("login-pass").value;
+  if(u==="admin"&&p==="admin123"){
+    sessionStorage.setItem("hostelcare_session","active");
+    document.getElementById("login-overlay").classList.add("hide");
+    document.getElementById("login-error").textContent="";
+    toast("Welcome to HostelCare.");
+  }else{
+    document.getElementById("login-error").textContent="Incorrect ID or password. Try the demo credentials below.";
+  }
+});
+function logout(){
+  sessionStorage.removeItem("hostelcare_session");
+  document.getElementById("login-pass").value="";
+  document.getElementById("login-overlay").classList.remove("hide");
+}
+if(sessionStorage.getItem("hostelcare_session")==="active"){
+  document.getElementById("login-overlay").classList.add("hide");
+}
+
+/* Initialise the workspace. */
+render();
+</script>
+</body>
+</html>
